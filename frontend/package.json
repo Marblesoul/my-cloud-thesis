@@ -1,0 +1,27 @@
+{
+  "name": "my-cloud-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.0.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-redux": "^9.0.0",
+    "react-router-dom": "^7.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^10.0.0",
+    "css-loader": "^7.0.0",
+    "html-webpack-plugin": "^5.0.0",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^6.0.0"
+  }
+}

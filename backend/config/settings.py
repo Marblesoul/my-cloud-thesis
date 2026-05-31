@@ -28,6 +28,7 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     origin for origin in env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[]) if origin
 ]
+CSRF_FAILURE_VIEW = "core.views.csrf_failure"
 
 INSTALLED_APPS = [
     "django.contrib.admin",

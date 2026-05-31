@@ -32,6 +32,11 @@ Create local environment settings:
 cp .env.example .env
 ```
 
+Set `INITIAL_ADMIN_PASSWORD` in `.env` before running migrations if you want
+the bootstrap `admin` user to be immediately usable. If it is omitted, the
+admin account is still created with `is_admin`, `is_staff`, and `is_superuser`,
+but its password is unusable until you change it manually.
+
 Install backend dependencies:
 
 ```bash
@@ -74,3 +79,36 @@ Expected Phase 0 result:
 - `/api/health/` returns `{"status":"ok"}`.
 - `/api/csrf/` returns JSON and sets the `csrftoken` cookie.
 - `/` serves the built React page from `frontend/dist/index.html`.
+
+## Phase 1 Backend Auth
+
+Phase 1 adds session-based auth endpoints:
+
+- `POST /api/register/`
+- `POST /api/login/`
+- `POST /api/logout/`
+- `GET /api/me/`
+
+Unsafe requests use Django sessions and CSRF. First request a token:
+
+```bash
+curl -c cookies.txt http://127.0.0.1:8000/api/csrf/
+```
+
+Then send the `csrftoken` cookie value as `X-CSRFToken` with credentials:
+
+```bash
+curl -b cookies.txt -c cookies.txt \
+  -H "Content-Type: application/json" \
+  -H "X-CSRFToken: <csrftoken>" \
+  -d '{"username":"User123","full_name":"User Example","email":"user@example.com","password":"Secret1!"}' \
+  http://127.0.0.1:8000/api/register/
+```
+
+Run Phase 1 checks:
+
+```bash
+rtk proxy backend/.venv/bin/python backend/manage.py makemigrations --check --dry-run
+rtk proxy backend/.venv/bin/python backend/manage.py migrate
+rtk proxy backend/.venv/bin/python -m pytest backend
+```

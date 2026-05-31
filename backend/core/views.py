@@ -23,6 +23,10 @@ def csrf_cookie(request: HttpRequest) -> Response:
     return Response({"detail": "CSRF cookie set"})
 
 
+def csrf_failure(request: HttpRequest, reason: str = "") -> JsonResponse:
+    return JsonResponse({"detail": f"CSRF Failed: {reason}"}, status=403)
+
+
 def spa_index(request: HttpRequest) -> HttpResponse:
     index_path = Path(settings.FRONTEND_DIST) / "index.html"
     if not index_path.exists():

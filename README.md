@@ -10,6 +10,7 @@ backend/
   accounts/      Custom user model foundation
   config/        Django settings, URLs, ASGI/WSGI
   core/          Phase 0 health, CSRF, and SPA views
+  storage/       File metadata, upload, download, and deletion API
 frontend/
   src/           React app, Redux store, API helper
   webpack.config.cjs
@@ -106,6 +107,46 @@ curl -b cookies.txt -c cookies.txt \
 ```
 
 Run Phase 1 checks:
+
+```bash
+rtk proxy backend/.venv/bin/python backend/manage.py makemigrations --check --dry-run
+rtk proxy backend/.venv/bin/python backend/manage.py migrate
+rtk proxy backend/.venv/bin/python -m pytest backend
+```
+
+## Phase 2 Backend File Storage
+
+Phase 2 adds authenticated file storage endpoints for the current user's own
+files:
+
+- `GET /api/files/`
+- `POST /api/files/`
+- `PATCH /api/files/<id>/`
+- `DELETE /api/files/<id>/`
+- `GET /api/files/<id>/download/`
+
+Uploaded files are stored under `STORAGE_ROOT/<user_id>/<uuid>`. The original
+file name is kept in the database and returned as the download filename.
+
+Example upload after logging in and obtaining a CSRF cookie:
+
+```bash
+curl -b cookies.txt -c cookies.txt \
+  -H "X-CSRFToken: <csrftoken>" \
+  -F "file=@./README.md" \
+  -F "comment=Example upload" \
+  http://127.0.0.1:8000/api/files/
+```
+
+Download a file by id:
+
+```bash
+curl -b cookies.txt \
+  -o downloaded-file \
+  http://127.0.0.1:8000/api/files/<id>/download/
+```
+
+Run Phase 2 checks:
 
 ```bash
 rtk proxy backend/.venv/bin/python backend/manage.py makemigrations --check --dry-run

@@ -1,0 +1,123 @@
+# Project-only planning docs
+SPEC.md
+IMPLEMENTATION_PLAN.md
+
+# Environment, secrets, and local settings
+.env
+.env.*
+!.env.example
+*.env
+*.local
+local_settings.py
+settings_local.py
+secrets.*
+*.secret
+*.pem
+*.key
+*.p12
+*.jks
+
+# Codex/Claude/agent local configuration
+.codex/
+.claude/
+.mcp/
+.mcp.json
+AGENTS.md
+CLAUDE.md
+CLAUDE.local.md
+CODEX.md
+
+# Editor and IDE files
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
+
+# Logs and runtime files
+logs/
+*.log
+*.pid
+*.sock
+*.tmp
+*.temp
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.pytype/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Python packaging and virtual environments
+.venv/
+venv/
+env/
+ENV/
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Django local data and generated assets
+*.sqlite3
+*.sqlite3-journal
+*.db
+/media/
+/uploads/
+/staticfiles/
+/backend/media/
+/backend/uploads/
+/backend/staticfiles/
+/backend/storage_root/
+/backend/user_files/
+/backend/private_media/
+
+# Node/React/Webpack dependencies and generated output
+node_modules/
+/frontend/node_modules/
+/frontend/dist/
+/frontend/build/
+/frontend/.cache/
+/frontend/coverage/
+/frontend/.env
+/frontend/.env.*
+!/frontend/.env.example
+
+# Package manager caches and logs
+.npm/
+.yarn/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test and report artifacts
+junit.xml
+test-results/
+playwright-report/
+
+# Local deployment overrides
+docker-compose.override.yml
+*.local.yml
+*.local.yaml

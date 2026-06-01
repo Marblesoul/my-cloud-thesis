@@ -4,6 +4,8 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.test import Client
 
+from storage.models import StoredFile
+
 
 pytestmark = pytest.mark.django_db
 
@@ -20,6 +22,25 @@ def csrf_client() -> Client:
     client = Client(enforce_csrf_checks=True)
     response = client.get("/api/csrf/")
     assert response.status_code == 200
+    return client
+
+
+def create_user(username: str, email: str, is_admin: bool = False):
+    user = get_user_model().objects.create_user(
+        username=username,
+        email=email,
+        password="Secret1!",
+        full_name=f"{username} Example",
+        is_admin=is_admin,
+    )
+    user.storage_path = str(user.id)
+    user.save(update_fields=["storage_path"])
+    return user
+
+
+def csrf_client_for(user) -> Client:
+    client = csrf_client()
+    assert client.login(username=user.username, password="Secret1!")
     return client
 
 
@@ -214,3 +235,81 @@ def test_bootstrap_admin_exists_with_required_flags():
     assert admin.is_staff is True
     assert admin.is_superuser is True
     assert admin.storage_path == str(admin.id)
+
+
+def test_admin_users_list_returns_storage_statistics():
+    admin = create_user("UsersAdmin", "users-admin@example.com", is_admin=True)
+    user = create_user("StatsUser", "stats-user@example.com")
+    StoredFile.objects.create(
+        owner=user,
+        original_name="one.txt",
+        size=10,
+        storage_path=f"{user.id}/one",
+    )
+    StoredFile.objects.create(
+        owner=user,
+        original_name="two.txt",
+        size=15,
+        storage_path=f"{user.id}/two",
+    )
+    client = csrf_client_for(admin)
+
+    response = client.get("/api/users/")
+
+    assert response.status_code == 200
+    users = {item["username"]: item for item in response.json()}
+    assert users["StatsUser"]["file_count"] == 2
+    assert users["StatsUser"]["storage_size"] == 25
+
+
+def test_users_endpoint_rejects_non_admin_users():
+    user = create_user("PlainUser", "plain@example.com")
+    client = csrf_client_for(user)
+
+    response = client.get("/api/users/")
+
+    assert response.status_code == 403
+
+
+def test_admin_can_update_is_admin_flag():
+    admin = create_user("PatchAdmin", "patch-admin@example.com", is_admin=True)
+    user = create_user("PromotedUser", "promoted@example.com")
+    client = csrf_client_for(admin)
+
+    response = client.patch(
+        f"/api/users/{user.id}/",
+        {"is_admin": True},
+        content_type="application/json",
+        **{"HTTP_X_CSRFTOKEN": client.cookies["csrftoken"].value},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["is_admin"] is True
+    user.refresh_from_db()
+    assert user.is_admin is True
+
+
+def test_admin_can_delete_user_record_and_physical_files(tmp_path, settings):
+    settings.STORAGE_ROOT = tmp_path
+    admin = create_user("DeleteAdmin", "delete-admin@example.com", is_admin=True)
+    user = create_user("DeletedUser", "deleted@example.com")
+    user_dir = tmp_path / str(user.id)
+    user_dir.mkdir()
+    stored_path = user_dir / "stored-file"
+    stored_path.write_bytes(b"to be removed")
+    StoredFile.objects.create(
+        owner=user,
+        original_name="removed.txt",
+        size=13,
+        storage_path=f"{user.id}/stored-file",
+    )
+    client = csrf_client_for(admin)
+
+    response = client.delete(
+        f"/api/users/{user.id}/",
+        **{"HTTP_X_CSRFTOKEN": client.cookies["csrftoken"].value},
+    )
+
+    assert response.status_code == 204
+    assert not get_user_model().objects.filter(id=user.id).exists()
+    assert not stored_path.exists()

@@ -153,3 +153,63 @@ rtk proxy backend/.venv/bin/python backend/manage.py makemigrations --check --dr
 rtk proxy backend/.venv/bin/python backend/manage.py migrate
 rtk proxy backend/.venv/bin/python -m pytest backend
 ```
+
+## Phase 3 Backend Sharing And Admin API
+
+Phase 3 adds public token downloads and administrator controls:
+
+- `POST /api/files/<id>/share/`
+- `GET /api/shared/<token>/`
+- `GET /api/users/`
+- `PATCH /api/users/<id>/`
+- `DELETE /api/users/<id>/`
+- `GET /api/files/?user_id=<id>` for admins managing another user's storage
+
+The shared link is token-based and does not include the username, storage path,
+or original file name. Downloads through both authenticated and public links
+return the original file name and update `last_download_at`.
+
+For direct file access by id, a file owned by another user is returned as
+`404 Not Found`. This keeps enumerable file ids from revealing that another
+user's file exists. A regular user explicitly requesting another user's storage
+with `?user_id=` receives `403 Forbidden`.
+
+Example share request after logging in:
+
+```bash
+curl -b cookies.txt -c cookies.txt \
+  -H "X-CSRFToken: <csrftoken>" \
+  -X POST \
+  http://127.0.0.1:8000/api/files/<id>/share/
+```
+
+Example public download:
+
+```bash
+curl -o shared-file \
+  http://127.0.0.1:8000/api/shared/<token>/
+```
+
+Admin examples:
+
+```bash
+curl -b admin-cookies.txt http://127.0.0.1:8000/api/users/
+
+curl -b admin-cookies.txt -c admin-cookies.txt \
+  -H "Content-Type: application/json" \
+  -H "X-CSRFToken: <csrftoken>" \
+  -X PATCH \
+  -d '{"is_admin":true}' \
+  http://127.0.0.1:8000/api/users/<id>/
+
+curl -b admin-cookies.txt \
+  http://127.0.0.1:8000/api/files/?user_id=<id>
+```
+
+Run Phase 3 checks:
+
+```bash
+rtk proxy backend/.venv/bin/python backend/manage.py makemigrations --check --dry-run
+rtk proxy backend/.venv/bin/python backend/manage.py migrate
+rtk proxy backend/.venv/bin/python -m pytest backend
+```

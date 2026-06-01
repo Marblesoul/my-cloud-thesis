@@ -1,6 +1,12 @@
 from django.urls import path
 
-from .views import FileDetailView, FileDownloadView, FileListCreateView
+from .views import (
+    FileDetailView,
+    FileDownloadView,
+    FileListCreateView,
+    FileShareView,
+    SharedFileDownloadView,
+)
 
 
 urlpatterns = [
@@ -11,4 +17,6 @@ urlpatterns = [
         FileDownloadView.as_view(),
         name="file-download",
     ),
+    path("files/<int:file_id>/share/", FileShareView.as_view(), name="file-share"),
+    path("shared/<str:token>/", SharedFileDownloadView.as_view(), name="shared-file"),
 ]

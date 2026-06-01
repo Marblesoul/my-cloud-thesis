@@ -153,8 +153,20 @@ p {
   color: #1f2937;
 }
 
+.button.danger {
+  background: #fff4ed;
+  border-color: #ffb088;
+  color: #b42318;
+}
+
 .button.full-width {
   width: 100%;
+}
+
+.button.small {
+  font-size: 0.9rem;
+  min-height: 34px;
+  padding: 0 12px;
 }
 
 .auth-page {
@@ -198,7 +210,22 @@ p {
   width: 100%;
 }
 
-.field input:focus {
+.field textarea,
+.table-input,
+.share-link {
+  border: 1px solid #b9c3d3;
+  border-radius: 6px;
+  color: #111827;
+  font: inherit;
+  padding: 9px 12px;
+  resize: vertical;
+  width: 100%;
+}
+
+.field input:focus,
+.field textarea:focus,
+.table-input:focus,
+.share-link:focus {
   border-color: #155eef;
   box-shadow: 0 0 0 3px rgba(21, 94, 239, 0.16);
   outline: none;
@@ -244,6 +271,110 @@ p {
   text-align: center;
 }
 
+.wide-page {
+  max-width: 1180px;
+}
+
+.page-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-header p {
+  color: #475467;
+  max-width: 760px;
+}
+
+.stack-panel {
+  margin-top: 20px;
+}
+
+.stack-panel h2,
+.section-heading h2 {
+  font-size: 1.25rem;
+  margin: 0 0 8px;
+}
+
+.upload-form {
+  align-items: end;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(220px, 1fr) minmax(260px, 1.3fr) auto;
+}
+
+.section-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.empty-state {
+  color: #667085;
+  margin: 8px 0 0;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  border-collapse: collapse;
+  min-width: 920px;
+  width: 100%;
+}
+
+.data-table th,
+.data-table td {
+  border-bottom: 1px solid #e4e7ec;
+  padding: 14px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.data-table th {
+  color: #475467;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.data-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.strong-text {
+  color: #111827;
+  font-weight: 700;
+}
+
+.block-error {
+  display: block;
+  margin-top: 6px;
+}
+
+.share-link {
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 220px;
+}
+
+.toggle-field {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
 @media (max-width: 640px) {
   .topbar {
     align-items: flex-start;
@@ -269,5 +400,19 @@ p {
 
   .actions {
     flex-direction: column;
+  }
+
+  .page-header,
+  .section-heading {
+    display: block;
+  }
+
+  .page-header .button,
+  .section-heading .button {
+    margin-top: 12px;
+  }
+
+  .upload-form {
+    grid-template-columns: 1fr;
   }
 }

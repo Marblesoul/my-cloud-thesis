@@ -22,6 +22,8 @@ import {
   validateLoginForm,
   validateRegisterForm,
 } from "../features/auth/validation.cjs";
+import { StoragePage } from "../features/files/StoragePage";
+import { AdminPage } from "../features/users/AdminPage";
 
 function HomePage() {
   const user = useSelector((state) => state.auth.user);
@@ -309,17 +311,6 @@ function TextField({
   );
 }
 
-function PlaceholderPage({ children, title }) {
-  return (
-    <main className="page">
-      <section className="panel">
-        <h1>{title}</h1>
-        <p>{children}</p>
-      </section>
-    </main>
-  );
-}
-
 function ProtectedRoute({ children, requireAdmin = false }) {
   const location = useLocation();
   const { initialized, user } = useSelector((state) => state.auth);
@@ -446,9 +437,7 @@ function AppRoutes() {
           path="/storage"
           element={
             <ProtectedRoute>
-              <PlaceholderPage title="Хранилище">
-                Управление файлами будет реализовано в фазе 5.
-              </PlaceholderPage>
+              <StoragePage />
             </ProtectedRoute>
           }
         />
@@ -456,9 +445,7 @@ function AppRoutes() {
           path="/admin"
           element={
             <ProtectedRoute requireAdmin>
-              <PlaceholderPage title="Администрирование">
-                Управление пользователями будет реализовано в фазе 5.
-              </PlaceholderPage>
+              <AdminPage />
             </ProtectedRoute>
           }
         />

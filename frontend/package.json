@@ -5,7 +5,7 @@
   "scripts": {
     "build": "webpack --mode production",
     "dev": "webpack --mode development --watch",
-    "test": "node --test src/features/auth/validation.test.cjs"
+    "test": "node --test src/features/auth/validation.test.cjs src/features/files/filesSlice.test.cjs src/features/users/usersSlice.test.cjs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.0.0",

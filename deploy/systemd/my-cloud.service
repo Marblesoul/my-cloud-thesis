@@ -1,0 +1,25 @@
+[Unit]
+Description=My Cloud gunicorn service
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=mycloud
+Group=www-data
+WorkingDirectory=/var/www/my-cloud
+EnvironmentFile=/var/www/my-cloud/.env
+RuntimeDirectory=my-cloud
+RuntimeDirectoryMode=0755
+ExecStart=/var/www/my-cloud/backend/.venv/bin/gunicorn \
+  --chdir /var/www/my-cloud/backend \
+  --bind unix:/run/my-cloud/gunicorn.sock \
+  --workers 3 \
+  --umask 007 \
+  --access-logfile - \
+  --error-logfile - \
+  config.wsgi:application
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

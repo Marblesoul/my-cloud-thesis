@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import environ
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 REPO_ROOT = BASE_DIR.parent
@@ -9,6 +10,13 @@ FRONTEND_DIST = REPO_ROOT / "frontend" / "dist"
 env = environ.Env(
     DJANGO_DEBUG=(bool, True),
     DJANGO_LOG_LEVEL=(str, "INFO"),
+    DJANGO_SECURE_SSL_REDIRECT=(bool, False),
+    DJANGO_SESSION_COOKIE_SECURE=(bool, False),
+    DJANGO_CSRF_COOKIE_SECURE=(bool, False),
+    DJANGO_SECURE_HSTS_SECONDS=(int, 0),
+    DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=(bool, False),
+    DJANGO_SECURE_HSTS_PRELOAD=(bool, False),
+    DJANGO_USE_X_FORWARDED_PROTO=(bool, False),
 )
 environ.Env.read_env(REPO_ROOT / ".env")
 
@@ -22,6 +30,9 @@ SECRET_KEY = env(
     default="django-insecure-local-phase-0-change-me",
 )
 DEBUG = env("DJANGO_DEBUG")
+if not DEBUG and SECRET_KEY == "django-insecure-local-phase-0-change-me":
+    raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set when DJANGO_DEBUG=False.")
+
 ALLOWED_HOSTS = [
     host for host in env.list("DJANGO_ALLOWED_HOSTS", default=["localhost", "127.0.0.1"]) if host
 ]
@@ -29,6 +40,15 @@ CSRF_TRUSTED_ORIGINS = [
     origin for origin in env.list("DJANGO_CSRF_TRUSTED_ORIGINS", default=[]) if origin
 ]
 CSRF_FAILURE_VIEW = "core.views.csrf_failure"
+SECURE_SSL_REDIRECT = env("DJANGO_SECURE_SSL_REDIRECT")
+SESSION_COOKIE_SECURE = env("DJANGO_SESSION_COOKIE_SECURE")
+CSRF_COOKIE_SECURE = env("DJANGO_CSRF_COOKIE_SECURE")
+SECURE_HSTS_SECONDS = env("DJANGO_SECURE_HSTS_SECONDS")
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS")
+SECURE_HSTS_PRELOAD = env("DJANGO_SECURE_HSTS_PRELOAD")
+SECURE_PROXY_SSL_HEADER = (
+    ("HTTP_X_FORWARDED_PROTO", "https") if env("DJANGO_USE_X_FORWARDED_PROTO") else None
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -99,7 +119,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = env_path("DJANGO_STATIC_ROOT", "backend/staticfiles")
 STATICFILES_DIRS = [FRONTEND_DIST / "static"] if (FRONTEND_DIST / "static").exists() else []
 
 STORAGE_ROOT = env_path("STORAGE_ROOT", "backend/storage_root")
